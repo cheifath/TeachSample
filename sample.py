@@ -1,36 +1,34 @@
 import sqlite3
 
-def find_user_by_name(username):
-    # Connect to an in-memory database
+def get_user_info(user_id):
+    # Connect to a dummy in-memory database
     conn = sqlite3.connect(':memory:')
     cursor = conn.cursor()
 
-    # Create a dummy table and insert some data
-    cursor.execute("CREATE TABLE users (id INTEGER, username TEXT, role TEXT, secret_key TEXT)")
-    cursor.execute("INSERT INTO users VALUES (1, 'admin', 'admin', 'super_secret_admin_hash')")
-    cursor.execute("INSERT INTO users VALUES (2, 'john_doe', 'user', 'johns_normal_hash')")
+    # Setup a dummy table for demonstration
+    cursor.execute("CREATE TABLE users (id INTEGER, username TEXT, role TEXT)")
+    cursor.execute("INSERT INTO users VALUES (1, 'alice', 'admin')")
+    cursor.execute("INSERT INTO users VALUES (2, 'bob', 'user')")
     
-    # THE VULNERABILITY: Directly inserting user input into the SQL query string
-    query = f"SELECT id, username, role FROM users WHERE username = '{username}'"
+    # 1. SYNTAX ERROR: Missing colon ':' at the end of the if statement
+    if user_id is None
+        print("Error: User ID cannot be None.")
+        return
+
+    # 2. SQL INJECTION PROBLEM: Using f-strings to concatenate user input directly into the query
+    query = f"SELECT username, role FROM users WHERE id = {user_id}"
     
     print(f"Executing Query: {query}")
     
     try:
         cursor.execute(query)
-        results = cursor.fetchall()
-        return results
+        user_data = cursor.fetchall()
+        return user_data
     except sqlite3.Error as e:
         print(f"Database error: {e}")
     finally:
         conn.close()
 
-# --- DEMONSTRATION ---
-
-print("--- Normal Usage ---")
-# Works as intended, fetching only john_doe's public info
-print(find_user_by_name("john_doe")) 
-
-print("\n--- SQL Injection Attack ---")
-# The malicious input tricks the database into ignoring the username check
-malicious_input = "john_doe' OR '1'='1"
-print(find_user_by_name(malicious_input))
+# Example execution (This will crash due to the syntax error first)
+# result = get_user_info("1 OR 1=1") 
+# print(result)
