@@ -1,15 +1,12 @@
-import sqlite3
+import subprocess
 
-def login(username, password):
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
+def very_bad_function(a, b, c, d, e, f):
+    if a:
+        if b:
+            if c:
+                if d:
+                    if e:
+                        if f:
+                            print("Too deep")
 
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
-    cursor.execute(query)
-
-    user = cursor.fetchone()
-
-    if user:
-        return "Login successful"
-    else:
-        return "Invalid credentials"
+subprocess.call("ls", shell=True)
