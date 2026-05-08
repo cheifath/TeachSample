@@ -1,20 +1,14 @@
-// VulnerableLogin.java
-// EDUCATIONAL PURPOSES ONLY
-
-import java.sql.*;
-import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class VulnerableLogin {
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Username: ");
-        String username = scanner.nextLine();
-
-        System.out.print("Password: ");
-        String password = scanner.nextLine();
+        String username = "admin";
+        String password = "admin123";
 
         try {
             Connection conn = DriverManager.getConnection(
@@ -25,15 +19,13 @@ public class VulnerableLogin {
 
             Statement stmt = conn.createStatement();
 
-            // VULNERABLE TO SQL INJECTION
+            // SECURITY ISSUE: SQL Injection
             String query =
                 "SELECT * FROM users WHERE username = '" +
                 username +
                 "' AND password = '" +
                 password +
                 "'";
-
-            System.out.println("Executing: " + query);
 
             ResultSet rs = stmt.executeQuery(query);
 
