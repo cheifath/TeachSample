@@ -1,4 +1,5 @@
-// safe.js
+// vulnerable.js
+// EDUCATIONAL PURPOSES ONLY
 
 const express = require("express");
 const mysql = require("mysql2");
@@ -17,13 +18,13 @@ app.get("/login", (req, res) => {
     const username = req.query.username;
     const password = req.query.password;
 
-    // SAFE QUERY
+    // SECURITY ISSUE: SQL Injection
     const query =
         `SELECT * FROM users 
-         WHERE username = ? 
-         AND password = ?`;
+         WHERE username = '${username}' 
+         AND password = '${password}'`;
 
-    db.query(query, [username, password], (err, results) => {
+    db.query(query, (err, results) => {
 
         if (err) {
             return res.send(err.message);
