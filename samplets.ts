@@ -1,57 +1,22 @@
-import express, { Request, Response } from 'express';
-import mysql from 'mysql';
-import fs from 'fs';
-import { exec } from 'child_process';
+import express from "express";
+import { exec } from "child_process";
 
 const app = express();
-app.use(express.json());
 
-// Hardcoded database credentials
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root123',
-    database: 'appdb'
-});
+app.get("/ping", (req, res) => {
+  const host = req.query.host as string;
 
-app.post('/login', (req: Request, res: Response) => {
+  // ❌ VULNERABLE
+  exec(`ping -c 1 ${host}`, (err, stdout, stderr) => {
+    if (err) {
+      return res.status(500).send(stderr);
+    }
 
-    const username: string = req.body.username;
-    const password: string = req.body.password;
-
-    // SQL Injection Vulnerability
-    const query =
-        "SELECT * FROM users WHERE username='" + username +
-        "' AND password='" + password + "'";
-
-    db.query(query, (err, results) => {
-
-        if (err) {
-            return res.send(err.message);
-        }
-
-        if (results.length > 0) {
-
-            // Command Injection Vulnerability
-            exec('ping ' + username, (error, stdout) => {
-                console.log(stdout);
-            });
-
-            // Path Traversal Vulnerability
-            fs.readFile('/tmp/' + username, 'utf8', (err, data) => {
-                if (!err) {
-                    console.log(data);
-                }
-            });
-
-            res.send('Login successful');
-
-        } else {
-            res.send('Invalid credentials');
-        }
-    });
+    res.send(stdout);
+  });
 });
 
 app.listen(3000, () => {
-    console.log('Insecure TypeScript server running on port 3000');
+  console.log("Server running on port 3000");
 });
+
