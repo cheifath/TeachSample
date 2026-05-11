@@ -1,15 +1,41 @@
+from flask import Flask, request
 import sqlite3
+import os
 
-def login(username, password):
-    conn = sqlite3.connect("users.db")
+app = Flask(__name__)
+
+DB = "users.db"
+
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    conn = sqlite3.connect(DB)
     cursor = conn.cursor()
 
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
-    cursor.execute(query)
+    # Vulnerable to SQL Injection
+    query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
 
-    user = cursor.fetchone()
+    result = cursor.execute(query).fetchone()
 
-    if user:
+    conn.close()
+
+    if result:
         return "Login successful"
     else:
         return "Invalid credentials"
+
+
+@app.route("/ping")
+def ping():
+    host = request.args.get("host")
+
+    # Vulnerable to Command Injection
+    output = os.popen(f"ping -c 1 {host}").read()
+
+    return f"<pre>{output}</pre>"
+
+
+@app.route("/read")
+def read_file():
